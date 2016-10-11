@@ -12,8 +12,10 @@
 
 elements = [];
 subsets = [];
+totalCost = 0;
 subsetsCosts = [];
 elements_in_subsets = [];
+chosen_subsets = [];
 
 ###############
 ## FUNCTIONS ##
@@ -38,11 +40,19 @@ def list_analysis(inputList):
 	print "Number of Subsets: " + str(n_subsets);
 	print "Number of Elements: " + str(n_elements);
 
+
 	# Cost of each Element:
 	global elements
 
 	for idx in xrange(0,n_elements):
 		elements.append(inputList.pop(0))
+
+
+	# Computes the Total Cost:
+	global totalCost
+
+	for cost in elements:
+		totalCost += int(cost);
 
 
 	# List of Subsets:
@@ -57,6 +67,7 @@ def list_analysis(inputList):
 			subset.append(inputList.pop(0))
 		
 		subsets.append(subset)
+
 
 # Computes the cost of each subset
 def subsets_costs():
@@ -73,8 +84,10 @@ def subsets_costs():
 
 		subsetsCosts.append(subsetCost);
 
-	for idx, subsetCost in enumerate(subsetsCosts):
-		print "Cost of Subset " + str(idx) + ": " + str(subsetCost);
+	# # Print Information to the Screen
+	# for idx, subsetCost in enumerate(subsetsCosts):
+	# 	print "Cost of Subset " + str(idx) + ": " + str(subsetCost);
+
 
 # Computes the subsets in which each element is found
 def elements_in_subsets():
@@ -83,7 +96,6 @@ def elements_in_subsets():
 
 	# Constructs the elements_in_subsets with the appropriate size
 	elements_in_subsets = [ [None] ] * len(elements);
-
 
 
 	# Iterate each subset in search of elements 
@@ -98,9 +110,110 @@ def elements_in_subsets():
 			else:
 				elements_in_subsets[int(element)-1].append(idx);
 
-	# Print Information to the Screen
-	for idx, element_in_subset in enumerate(elements_in_subsets):
-		print "Element " + str(idx+1) + " appears in " + str(len(element_in_subset)) + " subsets: " + str(element_in_subset)
+	# # Print Information to the Screen
+	# for elemenet, listSubsets in enumerate(elements_in_subsets):
+	# 	print "Element " + str(elemenet+1) + " appears in " + str(len(listSubsets)) + " subsets: " + str(listSubsets)
+
+
+# Heuristic to choose a set of subsets that composes all elements
+def heuristic():
+
+	global chosen_subsets;
+	global elements_in_subsets;
+	global subsetsCosts;
+	global subsets;
+	global totalCost;
+	chosen_elements = []
+	missing_elements = []
+
+	# Tests if there are elements that are only in one subset (and therefore must be chosen)
+	for elemenet, listSubsets in enumerate(elements_in_subsets):
+		if len(listSubsets) == 1:
+			# print "Subset " + str(listSubsets[0]) + " must be chosen"
+			chosen_subsets.append(listSubsets[0]);
+
+
+	# Adds elements to the list of chosen elements
+	for chosenSubset in chosen_subsets:
+
+		for element in subsets[int(chosenSubset)]:
+
+			if (int(element)+1) not in chosen_elements:
+				chosen_elements.append(int(element)+1)
+
+
+	# Constructs the list of elements which were not chosen:
+	for element, listSubsets in enumerate(elements_in_subsets):
+
+		if (element+1) not in chosen_elements:
+			missing_elements.append(int(element)+1);
+
+	# Print information to the console
+	print " == HEURISTIC 1 == "
+	print str(len(chosen_subsets)) + " Subsets must be chosen because they are the only ones with a given element."
+	print "Initial Chosen Elements: " + str(len(chosen_elements))
+	print "Initial Missing Elements: " + str(len(missing_elements))
+
+	# Computes the Cost of the Heuristic
+	heuristicCost = 0;
+
+	for chosenSubset in chosen_subsets:
+		heuristicCost += subsetsCosts[int(chosenSubset)]
+
+	print "Initial Heuristic cost: " + str(heuristicCost) + " (" + str(totalCost) + "): " + str(heuristicCost-totalCost)
+
+	# print missing_elements
+
+	iteration = 1;
+
+	# Iterates over the list of elements which were not chosen:
+	while missing_elements:
+
+		currentElement = missing_elements.pop(0);
+		subsetCosts = [];
+
+		print " -- ITERATION " + str(iteration) + " -- "
+		print "Current Element: " + str(currentElement);
+
+		print "Subsets in which Element is found: " + str(elements_in_subsets[currentElement]);
+
+		for i in elements_in_subsets[currentElement]:
+			subsetCosts.append(subsetsCosts[i])
+
+		print "Subsets Costs " + str(subsetCosts) 
+
+		# Gets the subset with the minimum cost
+		val, idx = min((val, idx) for (idx, val) in enumerate(subsetCosts))
+		chosenSubset = int(elements_in_subsets[currentElement][idx])
+
+		print "Minimum Cost: " + str(val) + " corresponding to Subset " + str(chosenSubset)
+
+		# Add minimum cost subset to the list of chosen subsets.
+		chosen_subsets.append(chosenSubset)
+
+		print chosen_subsets
+
+		# Remove elements from the chosen subset from the missing elements list.
+
+		# Add elements from the chosen subset to the list of chosen elements. 
+
+		# Increment the number of iterations
+		iteration += 1;
+
+
+
+
+	# Computes the Final Cost of the Heuristic
+	heuristicCost = 0;
+
+	for chosenSubset in chosen_subsets:
+		heuristicCost += subsetsCosts[int(chosenSubset)]
+
+	print "Final Heuristic cost: " + str(heuristicCost) + " (" + str(totalCost) + "): " + str(heuristicCost-totalCost)
+
+
+
+
 
 
 ##########
@@ -119,3 +232,5 @@ if __name__ == "__main__":
 	subsets_costs();
 
 	elements_in_subsets();
+
+	heuristic();
