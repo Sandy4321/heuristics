@@ -12,6 +12,8 @@
 
 elements = [];
 subsets = [];
+subsetsCosts = [];
+elements_in_subsets = [];
 
 ###############
 ## FUNCTIONS ##
@@ -56,6 +58,50 @@ def list_analysis(inputList):
 		
 		subsets.append(subset)
 
+# Computes the cost of each subset
+def subsets_costs():
+
+	global subsetsCosts;
+
+	# Iterate each subset
+	for subset in subsets:
+		subsetCost = 0;
+
+		for element in subset:
+			
+			subsetCost += int(elements[int(element)-1]);
+
+		subsetsCosts.append(subsetCost);
+
+	for idx, subsetCost in enumerate(subsetsCosts):
+		print "Cost of Subset " + str(idx) + ": " + str(subsetCost);
+
+# Computes the subsets in which each element is found
+def elements_in_subsets():
+
+	global elements_in_subsets;
+
+	# Constructs the elements_in_subsets with the appropriate size
+	elements_in_subsets = [ [None] ] * len(elements);
+
+
+
+	# Iterate each subset in search of elements 
+	for idx, subset in enumerate(subsets):
+
+		for element in subset:
+		
+			# Tests if the element has already been found in a subset
+			if elements_in_subsets[int(element)-1] == [None]:
+				elements_in_subsets[int(element)-1] = [idx];
+		
+			else:
+				elements_in_subsets[int(element)-1].append(idx);
+
+	# Print Information to the Screen
+	for idx, element_in_subset in enumerate(elements_in_subsets):
+		print "Element " + str(idx+1) + " appears in " + str(len(element_in_subset)) + " subsets: " + str(element_in_subset)
+
 
 ##########
 ## MAIN ##
@@ -70,4 +116,6 @@ if __name__ == "__main__":
 
 	list_analysis(inputList);
 
+	subsets_costs();
 
+	elements_in_subsets();
