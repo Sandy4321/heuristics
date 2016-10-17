@@ -93,77 +93,8 @@ def information_print():
 
 
 # First Constructive Heuristic to build an initial solution.
-# The criteria is to iterate each element and select the subset with the lowest cost. 
-def CH1():
-
-	global elements;
-	global subsets;
-	missingElementsList = [];
-	chosenElementsList = [];
-	chosenSubsetsList = [];
-
-	iteration = 1;
-
-	# Costructs the list of elements still to choose
-	for element in elements:
-		missingElementsList.append(element.id)
-
-	# Iterates until there is no element left
-	while  missingElementsList:
-		
-		# currentElementNumber = missingElementsList.pop(0);
-		currentElement = elements[missingElementsList.pop(0)-1]
-		chosenElementsList.append(currentElement.id);
-
-		# 1. Checks in which subsets the element can be found, selects the subset with the lowest cost:
-
-		candidateSubsets = currentElement.subsets
-		chosenSubset = candidateSubsets[0];
-		chosenSubsetCost = subsets[chosenSubset-1].cost
-
-		# 2. Adds the lowest cost subset to the list of chosen subsets
-		chosenSubsetsList.append(chosenSubset);
-
-		# 3. Removes all elements contained in the chosen subset from the missing elements list (as they were already chosen)
-		for elementId in subsets[chosenSubset-1].elements:
-			if elementId in missingElementsList:
-				missingElementsList.remove(elementId);
-				chosenElementsList.append(elementId);
-
-		# print " -------------- ITERATION " + str(iteration) + " -------------- "
-		# print "Iteration Element: " + str(currentElement.id)
-
-		# print "Subsets in which Element is found:  " + str(candidateSubsets);
-
-		# print "Selected Subset with Minimum Cost:  " + str(chosenSubset) + " with cost " + str(chosenSubsetCost)
-
-		# print missingElementsList
-		# print chosenElementsList
-
-		# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
-		# print "Number of Elements still missing:   " + str(len(missingElementsList));
-
-		iteration += 1;
-
-	print " ============ HEURISTIC 1 ================ "	
-	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
-
-	print "Chosen Subsets: "
-	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
-	chosenSubsetsListOrdered.sort()
-	print chosenSubsetsListOrdered
-
-	# Computes the Final Cost of the Heuristic
-	heuristicCost = 0;
-
-	for chosenSubset in chosenSubsetsList:
-		heuristicCost += subsets[chosenSubset-1].cost
-
-	print "Cost: " + str(heuristicCost)
-
-# Second Constructive Heuristic to build an initial solution.
 # The procedure is to first select subsets with the lowest cost
-def CH2():
+def CH1():
 
 	global elements;
 	global subsets;
@@ -205,6 +136,76 @@ def CH2():
 
 		# print "Subset Cost: " + str(chosenSubset.cost)
 		# print "Elements Contained in the Subset:  " + str(chosenSubset.elements);
+
+		# print missingElementsList
+		# print chosenElementsList
+
+		# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
+		# print "Number of Elements still missing:   " + str(len(missingElementsList));
+
+		iteration += 1;
+
+	print " ============ HEURISTIC 1 ================ "	
+	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
+
+	print "Chosen Subsets: "
+	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
+	chosenSubsetsListOrdered.sort()
+	print chosenSubsetsListOrdered
+
+	# Computes the Final Cost of the Heuristic
+	heuristicCost = 0;
+
+	for chosenSubset in chosenSubsetsList:
+		heuristicCost += subsets[chosenSubset-1].cost
+
+	print "Cost: " + str(heuristicCost)
+
+
+# Second Constructive Heuristic to build an initial solution.
+# The criteria is to iterate each element and select the subset with the lowest cost. 
+def CH2():
+
+	global elements;
+	global subsets;
+	missingElementsList = [];
+	chosenElementsList = [];
+	chosenSubsetsList = [];
+
+	iteration = 1;
+
+	# Costructs the list of elements still to choose
+	for element in elements:
+		missingElementsList.append(element.id)
+
+	# Iterates until there is no element left
+	while  missingElementsList:
+		
+		# currentElementNumber = missingElementsList.pop(0);
+		currentElement = elements[missingElementsList.pop(0)-1]
+		chosenElementsList.append(currentElement.id);
+
+		# 1. Checks in which subsets the element can be found, selects the subset with the lowest cost:
+
+		candidateSubsets = currentElement.subsets
+		chosenSubset = candidateSubsets[0];
+		chosenSubsetCost = subsets[chosenSubset-1].cost
+
+		# 2. Adds the lowest cost subset to the list of chosen subsets
+		chosenSubsetsList.append(chosenSubset);
+
+		# 3. Removes all elements contained in the chosen subset from the missing elements list (as they were already chosen)
+		for elementId in subsets[chosenSubset-1].elements:
+			if elementId in missingElementsList:
+				missingElementsList.remove(elementId);
+				chosenElementsList.append(elementId);
+
+		# print " -------------- ITERATION " + str(iteration) + " -------------- "
+		# print "Iteration Element: " + str(currentElement.id)
+
+		# print "Subsets in which Element is found:  " + str(candidateSubsets);
+
+		# print "Selected Subset with Minimum Cost:  " + str(chosenSubset) + " with cost " + str(chosenSubsetCost)
 
 		# print missingElementsList
 		# print chosenElementsList
