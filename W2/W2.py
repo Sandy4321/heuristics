@@ -161,6 +161,75 @@ def CH1():
 
 	print "Cost: " + str(heuristicCost)
 
+# Second Constructive Heuristic to build an initial solution.
+# The procedure is to first select subsets with the lowest cost
+def CH2():
+
+	global elements;
+	global subsets;
+	missingElementsList = [];
+	chosenElementsList = [];
+	chosenSubsetsList = [];
+
+	iteration = 1;
+
+	# Costructs the list of elements still to choose
+	for element in elements:
+		missingElementsList.append(element.id)
+
+	# Iterates until there is no element left
+	while  missingElementsList:
+
+		# 1. Choose the subset with the lowest cost
+		
+		chosenSubset = None
+		candidateSubsetId = 1; # Initial Subset Candidate
+		
+		while chosenSubset is None:
+			if candidateSubsetId not in chosenSubsetsList:
+				chosenSubset = subsets[candidateSubsetId-1]
+			else:
+				candidateSubsetId += 1;
+
+		# 2. Adds the lowest cost subset to the list of chosen subsets
+		chosenSubsetsList.append(chosenSubset.id);
+
+		# 3. Remove elements contained in the subset from a list of Missing Elements 
+		for elementId in chosenSubset.elements:
+			if elementId in missingElementsList:
+				missingElementsList.remove(elementId);
+				chosenElementsList.append(elementId);
+
+		# print " -------------- ITERATION " + str(iteration) + " -------------- "
+		# print "Iteration Subset: " + str(chosenSubset.id)
+
+		# print "Subset Cost: " + str(chosenSubset.cost)
+		# print "Elements Contained in the Subset:  " + str(chosenSubset.elements);
+
+		# print missingElementsList
+		# print chosenElementsList
+
+		# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
+		# print "Number of Elements still missing:   " + str(len(missingElementsList));
+
+		iteration += 1;
+
+	print " ============ HEURISTIC 2 ================ "	
+	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
+
+	print "Chosen Subsets: "
+	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
+	chosenSubsetsListOrdered.sort()
+	print chosenSubsetsListOrdered
+
+	# Computes the Final Cost of the Heuristic
+	heuristicCost = 0;
+
+	for chosenSubset in chosenSubsetsList:
+		heuristicCost += subsets[chosenSubset-1].cost
+
+	print "Cost: " + str(heuristicCost)
+
 
 # Second Constructive Heuristic to build an initial solution.
 # The criteria is to first select subsets that have unique elements. A second stage selects all the remainder 
@@ -314,7 +383,7 @@ if __name__ == "__main__":
 
 	CH1();
 
-	# CH2();
+	CH2();
 
 	# CH3();
 
