@@ -317,6 +317,75 @@ def CH3():
 	print "Cost: " + str(heuristicCost)
 
 
+# Fourth Constructive Heuristic to build an initial solution.
+# The procedure is to first select subsets with the lowest cost to number of elements weight
+def CH4():
+
+	global elements;
+	global subsets;
+	missingElementsList = [];
+	orderedSubsets = [];
+	chosenElementsList = [];
+	chosenSubsetsList = [];
+
+	iteration = 1;
+
+	# Costructs the list of elements still to choose
+	for element in elements:
+		missingElementsList.append(element.id)
+
+	# 1. Orders Subsets using the weight (cost / #elements) as a criteria
+	orderedSubsets = sorted(subsets, key=lambda x: x.weight())
+
+	# for subset in orderedSubsets:
+	# 	print "Subset # " + str(subset.id) + " with Weight: " + str(subset.weight())
+
+	# Iterates until there is no element left
+	while  missingElementsList:
+
+		# 2. Choose the subset with the lowest weight
+		
+		chosenSubset = orderedSubsets.pop(0);
+
+		# 3. Adds the lowest cost subset to the list of chosen subsets
+		chosenSubsetsList.append(chosenSubset.id);
+
+		# 4. Remove elements contained in the subset from a list of Missing Elements 
+		for elementId in chosenSubset.elements:
+			if elementId in missingElementsList:
+				missingElementsList.remove(elementId);
+				chosenElementsList.append(elementId);
+
+		# print " -------------- ITERATION " + str(iteration) + " -------------- "
+		# print "Iteration Subset: " + str(chosenSubset.id)
+
+		# print "Subset Cost: " + str(chosenSubset.cost)
+		# print "Elements Contained in the Subset:  " + str(chosenSubset.elements);
+
+		# print missingElementsList
+		# print chosenElementsList
+
+		# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
+		# print "Number of Elements still missing:   " + str(len(missingElementsList));
+
+		iteration += 1;
+
+	print " ============ HEURISTIC 4 ================ "	
+	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
+
+	print "Chosen Subsets: "
+	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
+	chosenSubsetsListOrdered.sort()
+	print chosenSubsetsListOrdered
+
+	# Computes the Final Cost of the Heuristic
+	heuristicCost = 0;
+
+	for chosenSubset in chosenSubsetsList:
+		heuristicCost += subsets[chosenSubset-1].cost
+
+	print "Cost: " + str(heuristicCost)
+
 ##########
 ## MAIN ##
 ##########
@@ -344,4 +413,6 @@ if __name__ == "__main__":
 	CH2();
 
 	CH3();
+
+	CH4();
 
