@@ -6,16 +6,23 @@
 ##                                 ##
 #####################################
 
+#############
+## IMPORTS ##
+#############
+
+from Element import Element
+from Subset import Subset
+
 ######################
 ## GLOBAL VARIABLES ##
 ######################
 
-elements = [];
 subsets = [];
-totalCost = 0;
-subsetsCosts = [];
-elements_in_subsets = [];
-chosen_subsets = [];
+elements = [];
+# totalCost = 0;
+# subsetsCosts = [];
+# elements_in_subsets = [];
+# chosen_subsets = [];
 
 ###############
 ## FUNCTIONS ##
@@ -31,89 +38,62 @@ def read_file(directory, file):
 
 	return x;
 
+
 # Makes an analysis on the list of input data.
 def list_analysis(inputList):
 
-	n_subsets = int(inputList.pop(0));
 	n_elements = int(inputList.pop(0));
+	n_subsets = int(inputList.pop(0));
 
-	print "Number of Subsets: " + str(n_subsets);
 	print "Number of Elements: " + str(n_elements);
+	print "Number of Subsets: " + str(n_subsets);
 
-
-	# Cost of each Element:
-	global elements
-
-	for idx in xrange(0,n_elements):
-		elements.append(inputList.pop(0))
-
-
-	# Computes the Total Cost:
-	global totalCost
-
-	for cost in elements:
-		totalCost += int(cost);
-
-
-	# List of Subsets:
+	# Construction of Subset list:
 	global subsets
 
-	while inputList :
+	for i in xrange(0,n_subsets):
+		subset = Subset(i+1, int(inputList.pop(0)));
+		subsets.append(subset);
 
-		subset = []
-		n_elementsInSubset = int(inputList.pop(0))
-		
-		for idx in xrange(0,n_elementsInSubset):
-			subset.append(inputList.pop(0))
-		
-		subsets.append(subset)
+	# Construction of Element list:
+	global elements
 
-# Computes the cost of each subset
-def subsets_costs():
+	nElements = 0;
 
-	global subsetsCosts;
+	while inputList:
 
-	# Iterate each subset
+		element = Element(nElements+1)
+
+		nSubsets = int(inputList.pop(0))
+
+		for i in xrange(0, nSubsets):
+			element.subsets.append(int(inputList.pop(0)))
+
+		elements.append(element)
+
+		nElements += 1;
+
+	# Computes which elements are inside each subset
+	for element in elements:
+		for subset in element.subsets:
+			subsets[subset-1].elements.append(element.id);
+
+
+# Print Information about Subsets and Elements to the console 
+def information_print():
+
+	global subsets
+	global elements
+
 	for subset in subsets:
-		subsetCost = 0;
+		print "Subset #" + str(subset.id) + " with cost " + str(subset.cost) + " contains " + str(len(subset.elements)) + " Elements: " + str(subset.elements)
 
-		for element in subset:
-			
-			subsetCost += int(elements[int(element)-1]);
-
-		subsetsCosts.append(subsetCost);
-
-	# # Print Information to the Screen
-	# for idx, subsetCost in enumerate(subsetsCosts):
-	# 	print "Cost of Subset " + str(idx) + ": " + str(subsetCost);
-
-# Computes the subsets in which each element is found
-def elements_in_subsets():
-
-	global elements_in_subsets;
-
-	# Constructs the elements_in_subsets with the appropriate size
-	elements_in_subsets = [ [None] ] * len(elements);
+	for element in elements:
+		print "Element #" + str(element.id) + " contained in " + str(len(element.subsets)) + " Subsets"
 
 
-	# Iterate each subset in search of elements 
-	for idx, subset in enumerate(subsets):
-
-		for element in subset:
-		
-			# Tests if the element has already been found in a subset
-			if elements_in_subsets[int(element)-1] == [None]:
-				elements_in_subsets[int(element)-1] = [idx];
-		
-			else:
-				elements_in_subsets[int(element)-1].append(idx);
-
-	# # Print Information to the Screen
-	# for elemenet, listSubsets in enumerate(elements_in_subsets):
-	# 	print "Element " + str(elemenet+1) + " appears in " + str(len(listSubsets)) + " subsets: " + str(listSubsets)
-
-
-# First Heuristic to choose a set of subsets that composes all elements
+# First Heuristic to choose a set of subsets that composes all elements.
+# The criteria is to select first the elements with lowest cost. 
 def heuristic_1():
 
 	global elements;
@@ -137,8 +117,8 @@ def heuristic_1():
 		currentElement = missingElementsList.pop(0);
 		chosenElementsList.append(int(currentElement));
 
-		print " -------------- ITERATION " + str(iteration) + " -------------- "
-		print "Iteration Element: " + str(currentElement)
+		# print " -------------- ITERATION " + str(iteration) + " -------------- "
+		# print "Iteration Element: " + str(currentElement)
 
 
 		# Checks in which subsets the element can be found
@@ -146,7 +126,7 @@ def heuristic_1():
 		candidateSubsets = elements_in_subsets[currentElement-1];
 		candidateSubsetsCosts = [];
 
-		print "Subsets in which Element is found:  " + str(candidateSubsets);
+		# print "Subsets in which Element is found:  " + str(candidateSubsets);
 
 
 		# Selects the subset with the lowest cost 
@@ -154,14 +134,14 @@ def heuristic_1():
 		for subset in candidateSubsets:
 			candidateSubsetsCosts.append(subsetsCosts[subset])
 
-		print "Cost of the Canidate Subsets found: " + str(candidateSubsetsCosts);
+		# print "Cost of the Canidate Subsets found: " + str(candidateSubsetsCosts);
 
 
 		# Gets the subset with the minimum cost
 		val, idx = min((val, idx) for (idx, val) in enumerate(candidateSubsetsCosts))
 		chosenSubset = int(candidateSubsets[idx]);
 
-		print "Selected Subset with Minimum Cost:  " + str(chosenSubset)
+		# print "Selected Subset with Minimum Cost:  " + str(chosenSubset)
 
 
 		# Adds the lowest cost subset to the list of chosen subsets
@@ -180,13 +160,13 @@ def heuristic_1():
 		# print missingElementsList
 		# print chosenElementsList
 
-		print "Number of Elements already chosen:  " + str(len(chosenElementsList));
-		print "Number of Elements still missing:   " + str(len(missingElementsList));
+		# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
+		# print "Number of Elements still missing:   " + str(len(missingElementsList));
 
 		
 		iteration += 1;
 
-	print " ========================================= "
+	print " ============ HEURISTIC 1 ================ "	
 	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
 	print "Chosen Subsets: "
@@ -201,9 +181,11 @@ def heuristic_1():
 	for chosenSubset in chosenSubsetsList:
 		heuristicCost += subsetsCosts[int(chosenSubset)]
 
-	print "Final Heuristic cost: " + str(heuristicCost-totalCost) + " ( " + str(heuristicCost) + " - " + str(totalCost) + " )"
+	print "Cost: " + str(heuristicCost)
 
-# Second Heuristic to choose a set of subsets that composes all ements
+# Second Heuristic to choose a set of subsets that composes all elements.
+# The criteria is to first select subsets that have unique elements. A second stage selects all the remainder 
+# elements chosing first the element with the lowest cost. 
 def heuristic_2():
 
 	global elements;
@@ -237,15 +219,15 @@ def heuristic_2():
 					chosenElementsList.append(int(el));
 
 
-	print "Number of Elements already chosen:  " + str(len(chosenElementsList));
-	print "Number of Elements still missing:   " + str(len(missingElementsList));
+	# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
+	# print "Number of Elements still missing:   " + str(len(missingElementsList));
 
-	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
+	# print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
-	print "Chosen Subsets: "
+	# print "Chosen Subsets: "
 	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
 	chosenSubsetsListOrdered.sort()
-	print chosenSubsetsListOrdered
+	# print chosenSubsetsListOrdered
 
 
 	iteration = 1;
@@ -257,8 +239,8 @@ def heuristic_2():
 		currentElement = missingElementsList.pop(0);
 		chosenElementsList.append(int(currentElement));
 
-		print " -------------- ITERATION " + str(iteration) + " -------------- "
-		print "Iteration Element: " + str(currentElement)
+		# print " -------------- ITERATION " + str(iteration) + " -------------- "
+		# print "Iteration Element: " + str(currentElement)
 
 
 		# Checks in which subsets the element can be found
@@ -266,7 +248,7 @@ def heuristic_2():
 		candidateSubsets = elements_in_subsets[currentElement-1];
 		candidateSubsetsCosts = [];
 
-		print "Subsets in which Element is found:  " + str(candidateSubsets);
+		# print "Subsets in which Element is found:  " + str(candidateSubsets);
 
 
 		# Selects the subset with the lowest cost 
@@ -274,14 +256,14 @@ def heuristic_2():
 		for subset in candidateSubsets:
 			candidateSubsetsCosts.append(subsetsCosts[subset])
 
-		print "Cost of the Canidate Subsets found: " + str(candidateSubsetsCosts);
+		# print "Cost of the Canidate Subsets found: " + str(candidateSubsetsCosts);
 
 
 		# Gets the subset with the minimum cost
 		val, idx = min((val, idx) for (idx, val) in enumerate(candidateSubsetsCosts))
 		chosenSubset = int(candidateSubsets[idx]);
 
-		print "Selected Subset with Minimum Cost:  " + str(chosenSubset)
+		# print "Selected Subset with Minimum Cost:  " + str(chosenSubset)
 
 
 		# Adds the lowest cost subset to the list of chosen subsets
@@ -300,13 +282,14 @@ def heuristic_2():
 		# print missingElementsList
 		# print chosenElementsList
 
-		print "Number of Elements already chosen:  " + str(len(chosenElementsList));
-		print "Number of Elements still missing:   " + str(len(missingElementsList));
+		# print "Number of Elements already chosen:  " + str(len(chosenElementsList));
+		# print "Number of Elements still missing:   " + str(len(missingElementsList));
 
 		
 		iteration += 1;
 
-	print " ========================================= "
+
+	print " ============ HEURISTIC 2 ================ "	
 	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
 	print "Chosen Subsets: "
@@ -321,8 +304,11 @@ def heuristic_2():
 	for chosenSubset in chosenSubsetsList:
 		heuristicCost += subsetsCosts[int(chosenSubset)]
 
-	print "Final Heuristic cost: " + str(heuristicCost-totalCost) + " ( " + str(heuristicCost) + " - " + str(totalCost) + " )"
+	print "Cost: " + str(heuristicCost)
 
+# Third Heuristic to choose a set of subsets that composes all elements.
+def heuristic_3():
+	pass
 
 ##########
 ## MAIN ##
@@ -333,15 +319,22 @@ if __name__ == "__main__":
 	directory = "SCP-Instances"
 	file = "scp42.txt"
 
+	print "###################################################################################"
+	print "File: " + directory + "/" + file
+
 	inputList = read_file(directory, file);
 
 	list_analysis(inputList);
 
-	subsets_costs();
+	information_print();
 
-	elements_in_subsets();
+	# subsets_costs();
 
-	heuristic_1();
+	# elements_in_subsets();
+
+	# heuristic_1();
 
 	# heuristic_2();
+
+	# heuristic_3();
 
