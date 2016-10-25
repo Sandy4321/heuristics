@@ -11,8 +11,13 @@
 ## IMPORTS ##
 #############
 
+import os
+import csv
+import sys
+import copy
 from Element import Element
 from Subset import Subset
+from Solution import Solution
 
 
 ######################
@@ -21,10 +26,6 @@ from Subset import Subset
 
 subsets = [];
 elements = [];
-# totalCost = 0;
-# subsetsCosts = [];
-# elements_in_subsets = [];
-# chosen_subsets = [];
 
 
 ###############
@@ -53,6 +54,7 @@ def list_analysis(inputList):
 
 	# Construction of Subset list:
 	global subsets
+	subsets = []; # Make sure to delete subsets array.
 
 	for i in xrange(0,n_subsets):
 		subset = Subset(i+1, int(inputList.pop(0)));
@@ -60,6 +62,7 @@ def list_analysis(inputList):
 
 	# Construction of Element list:
 	global elements
+	elements = []; # Make sure to delete elements array.
 
 	nElements = 0;
 
@@ -151,10 +154,10 @@ def CH1():
 	print " ============ CONSTRUCTIVE HEURISTIC 1 ================ "	
 	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
-	print "Chosen Subsets: "
-	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
-	chosenSubsetsListOrdered.sort()
-	print chosenSubsetsListOrdered
+	# print "Chosen Subsets: "
+	# chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
+	# chosenSubsetsListOrdered.sort()
+	# print chosenSubsetsListOrdered
 
 	# Computes the Final Cost of the Heuristic
 	heuristicCost = 0;
@@ -163,6 +166,8 @@ def CH1():
 		heuristicCost += subsets[chosenSubset-1].cost
 
 	print "Cost: " + str(heuristicCost)
+
+	return heuristicCost
 
 
 # Second Constructive Heuristic to build an initial solution.
@@ -221,10 +226,10 @@ def CH2():
 	print " ============ CONSTRUCTIVE HEURISTIC 2 ================ "	
 	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
-	print "Chosen Subsets: "
-	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
-	chosenSubsetsListOrdered.sort()
-	print chosenSubsetsListOrdered
+	# print "Chosen Subsets: "
+	# chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
+	# chosenSubsetsListOrdered.sort()
+	# print chosenSubsetsListOrdered
 
 	# Computes the Final Cost of the Heuristic
 	heuristicCost = 0;
@@ -233,6 +238,8 @@ def CH2():
 		heuristicCost += subsets[chosenSubset-1].cost
 
 	print "Cost: " + str(heuristicCost)
+
+	return heuristicCost
 
 
 # Third Constructive Heuristic to build an initial solution.
@@ -256,7 +263,7 @@ def CH3():
 		
 		# currentElementNumber = missingElementsList.pop(0);
 		currentElement = elements[missingElementsList.pop(0)-1]
-		chosenElementsList.append(currentElement.id);
+		# chosenElementsList.append(currentElement.id);
 
 		# 1. Checks in which subsets the element can be found, selects the subset with the lowest cost:
 
@@ -269,9 +276,12 @@ def CH3():
 
 		# 3. Removes all elements contained in the chosen subset from the missing elements list (as they were already chosen)
 		for elementId in subsets[chosenSubset-1].elements:
-			if elementId in missingElementsList:
+			# if elementId in missingElementsList:
+			try:
 				missingElementsList.remove(elementId);
-				chosenElementsList.append(elementId);
+			except Exception, e:
+				pass
+			chosenElementsList.append(elementId);
 
 		# print " -------------- ITERATION " + str(iteration) + " -------------- "
 		# print "Iteration Element: " + str(currentElement.id)
@@ -291,10 +301,13 @@ def CH3():
 	print " ============ CONSTRUCTIVE HEURISTIC 3 ================ "	
 	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
-	print "Chosen Subsets: "
+	# print "Chosen Subsets: "
 	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
 	chosenSubsetsListOrdered.sort()
-	print chosenSubsetsListOrdered
+	# print chosenSubsetsListOrdered
+
+	chosenElementsListOrdered = [int(x) for x in chosenElementsList]
+	chosenElementsListOrdered.sort()
 
 	# Computes the Final Cost of the Heuristic
 	heuristicCost = 0;
@@ -303,6 +316,11 @@ def CH3():
 		heuristicCost += subsets[chosenSubset-1].cost
 
 	print "Cost: " + str(heuristicCost)
+
+	# Solution Representation
+	solution = Solution("SR3_0", "CH3", heuristicCost, chosenSubsetsListOrdered, chosenElementsListOrdered)
+
+	return solution
 
 
 # Fourth Constructive Heuristic to build an initial solution.
@@ -376,10 +394,10 @@ def CH4():
 	print " ============ CONSTRUCTIVE HEURISTIC 4 ================ "	
 	print "Number of Subsets chosen: " + str(len(chosenSubsetsList));
 
-	print "Chosen Subsets: "
-	chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
-	chosenSubsetsListOrdered.sort()
-	print chosenSubsetsListOrdered
+	# print "Chosen Subsets: "
+	# chosenSubsetsListOrdered = [int(x) for x in chosenSubsetsList]
+	# chosenSubsetsListOrdered.sort()
+	# print chosenSubsetsListOrdered
 
 	# Computes the Final Cost of the Heuristic
 	heuristicCost = 0;
@@ -388,6 +406,110 @@ def CH4():
 		heuristicCost += subsets[chosenSubset-1].cost
 
 	print "Cost: " + str(heuristicCost)
+
+	return heuristicCost
+
+# Redundancy elimination
+def RE():
+	return
+
+# First Improvment: 
+def FI(solution):
+	
+	FI_solution = Solution("FI_0", solution.CH, solution.cost, solution.subsets, solution.elements)
+
+	print FI_solution.subsets
+
+	for iteration in xrange(1,len(solution.subsets)+1):
+		print " ===== Iteration " + str(iteration) + " ===== "
+
+		actualSolutionCost = FI_solution.getCost(subsets);
+
+		# Remove last subset from the list of chosen subsets
+		removedSubset = FI_solution.subsets.pop(-iteration)
+
+		# print "Removed Subset " + str(removedSubset)
+		
+		# Remove elements from the last subset from the list of chosen subsets
+		for removedSubsetElements in subsets[removedSubset-1].elements:
+			if removedSubsetElements in FI_solution.elements:
+				FI_solution.elements.remove(removedSubsetElements);
+
+		# Detects which elements are now missing
+		missingElementsList = FI_solution.getElementsMissing(elements);
+	
+		# REDUDANCY DETECTION
+		if len(missingElementsList) is 0:
+			# print "Redudant Solution!"
+
+			# Adds back subset and elements
+			FI_solution.subsets.append(removedSubset)
+
+			for element in subsets[removedSubset-1].elements:
+				FI_solution.elements.append(element)
+
+			continue 
+
+
+		flg_improvedSolution = False;
+
+		# Iterates list of missing elements and tries to construct another solution
+		for missingElement in missingElementsList:
+
+			if not flg_improvedSolution:
+
+				# For each subset containing the Missing Element that is not the removed one and is not already in the list of chosen subsets, try to construct a solution
+				for subset in elements[missingElement-1].subsets:
+					if subset != removedSubset and subset not in FI_solution.subsets:
+						
+						FI_tentativeSolution = copy.deepcopy(FI_solution);
+
+						for element in subsets[subset-1].elements:
+							FI_tentativeSolution.elements.append(element)
+
+						# Gets the list of Missing Elements in the Tentative Solution
+						missingElementsList = FI_tentativeSolution.getElementsMissing(elements);
+
+						# If it is a Potential Solution, computes the cost
+						if len(missingElementsList) is 0:
+
+							FI_tentativeSolution.subsets.append(subset)
+
+							tentativeSolutionCost = FI_tentativeSolution.getCost(subsets)
+
+							print "Potential Solution: Swap " + str(removedSubset) + " with " + str(subset) + " (COST " + str(tentativeSolutionCost) + ")"
+
+							# If the cost is lower than the actual cost, the new solution is changed. If not, try again.
+							if tentativeSolutionCost <= actualSolutionCost:
+								print "New Solution! Swap " + str(removedSubset) + " with " + str(subset) + " (NEW COST: " + str(tentativeSolutionCost) + ") (COST IMPROVEMENT: " + str(actualSolutionCost-tentativeSolutionCost) + ")"
+
+								FI_solution = copy.deepcopy(FI_tentativeSolution);
+
+								flg_improvedSolution = True;
+
+								break;
+
+							# else:
+								# print "No Improvement!"
+
+						# If it is not a Potential Solution, try again
+
+		# print FI_solution.subsets
+
+		if not flg_improvedSolution:
+
+
+			# Adds back subset and elements
+			FI_solution.subsets.append(removedSubset)
+
+			for element in subsets[removedSubset-1].elements:
+				FI_solution.elements.append(element)
+
+			# print "No New Solution... Adding back " + str(removedSubset) + " (COST:  " + str(FI_solution.getCost(subsets)) + ")"
+
+
+	print FI_solution.subsets
+
 
 
 ##########
@@ -399,6 +521,14 @@ if __name__ == "__main__":
 	directory = "SCP-Instances"
 	file = "scp42.txt"
 
+	dataFile = "data.csv"
+
+	f = open(dataFile, 'wt')
+
+	writer = csv.writer(f)
+	writer.writerow( ('SCP', 'CH1', 'CH2', 'CH3') )
+
+
 	print "###################################################################################"
 	print "File: " + directory + "/" + file
 
@@ -408,10 +538,39 @@ if __name__ == "__main__":
 
 	# information_print();
 
-	CH1();
+	# CH1()
 
-	CH2();
+	# CH2();
 
-	CH3();
+	CH3_solution = CH3();
 
-	CH4();
+	FI(CH3_solution);
+
+	# CH4();
+
+	# for subdir, dirs, files in os.walk(directory):
+	# 	for file in files:
+
+	# 		print "###################################################################################"
+	# 		print "File: " + directory + "/" + file
+
+	# 		inputList = read_file(directory, file);
+
+	# 		list_analysis(inputList);
+
+	# 		# information_print();
+
+	# 		CH1_result = CH1();
+
+	# 		# CH2_result = CH2();
+
+	# 		CH3_result = CH3();
+
+	# 		CH4_result = CH4();
+
+	# 		writer.writerow( (file, CH1_result, CH3_result, CH4_result) );
+
+	f.close()
+
+
+	
